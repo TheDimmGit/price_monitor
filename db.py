@@ -1,7 +1,7 @@
 import sqlite3
 
 
-def db_saver(user_id, message):
+def db_saver(user_id: str, message: str) -> None:
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
 
@@ -10,6 +10,13 @@ def db_saver(user_id, message):
                       user_id integer,
                       message text)
                     """)
-    info = list(tuple(user_id, message))
-    cursor.execute(f"INSERT INTO user_info(user_id, message) VALUES (?,?)", info)
+    cursor.execute(f"INSERT INTO user_info(user_id, message) VALUES (?,?)", (user_id, message))
     conn.commit()
+
+
+def db_extract(user_id: str) -> list:
+    conn = sqlite3.connect('user_info.db')
+    cursor = conn.cursor()
+    cursor.execute(f'SELECT message FROM user_info WHERE user_id={user_id}')
+    game = set([i[0] for i in cursor.fetchall()])
+    return list(game)
