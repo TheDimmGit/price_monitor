@@ -17,9 +17,12 @@ def db_saver(user_id: str, message: str) -> None:
 def db_extract(user_id: str) -> list:
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
-    cursor.execute(f'SELECT message FROM user_info WHERE user_id={user_id}')
-    game = set([i[0] for i in cursor.fetchall()])
-    return list(game)
+    try:
+        cursor.execute(f'SELECT message FROM user_info WHERE user_id={user_id}')
+        game = set([i[0] for i in cursor.fetchall()])
+        return list(game)
+    except sqlite3.OperationalError:
+        return []
 
 
 def db_delete(message: str) -> None:

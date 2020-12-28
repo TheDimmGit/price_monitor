@@ -51,8 +51,8 @@ def process_url_step(message):
             if message.text in db_extract(user_id):
                 bot.send_message(message.chat.id, 'Такая игра уже есть', reply_markup=keyboard1)
             else:
-                bot.send_message(message.chat.id, 'Игра из Steam добавлена', reply_markup=keyboard1)
                 db_saver(message.chat.id, message.text)
+                bot.send_message(message.chat.id, 'Игра из Steam добавлена', reply_markup=keyboard1)
         elif 'https://www.gog.com/game/' in message.text:
             bot.send_message(message.chat.id, 'Игра из GOG добавлена', reply_markup=keyboard1)
         elif 'https://www.epicgames.com/store/ru/product/' in message.text:
