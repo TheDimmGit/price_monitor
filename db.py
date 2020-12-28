@@ -20,3 +20,11 @@ def db_extract(user_id: str) -> list:
     cursor.execute(f'SELECT message FROM user_info WHERE user_id={user_id}')
     game = set([i[0] for i in cursor.fetchall()])
     return list(game)
+
+
+def db_delete(message: str) -> None:
+    conn = sqlite3.connect('user_info.db')
+    sql = 'DELETE FROM user_info WHERE message=?'
+    cursor = conn.cursor()
+    cursor.execute(sql, (message,))
+    conn.commit()
