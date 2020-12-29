@@ -43,24 +43,29 @@ def delete_game(message):
 
 
 def process_url_step(message):
-    user_id = message.chat.id
-    resp = requests.get(message.text)
-    print(resp.status_code)
-    if resp.status_code == 200:
-        if 'https://store.steampowered.com/app/' in message.text:
-            if message.text in db_extract(user_id):
-                bot.send_message(message.chat.id, 'Такая игра уже есть', reply_markup=keyboard1)
+    if 'https://' in message.text:
+        user_id = message.chat.id
+        try:
+            resp = requests.get(message.text)
+            if resp.status_code == 200:
+                if 'https://store.steampowered.com/app/' in message.text:
+                    if message.text in db_extract(user_id):
+                        bot.send_message(message.chat.id, 'Такая игра уже есть', reply_markup=keyboard1)
+                    else:
+                        db_saver(message.chat.id, message.text)
+                        bot.send_message(message.chat.id, 'Игра из Steam добавлена', reply_markup=keyboard1)
+                elif 'https://www.gog.com/game/' in message.text:
+                    bot.send_message(message.chat.id, 'Игра из GOG добавлена', reply_markup=keyboard1)
+                elif 'https://www.epicgames.com/store/ru/product/' in message.text:
+                    bot.send_message(message.chat.id, 'Игра из Epic добавлена', reply_markup=keyboard1)
+                else:
+                    bot.send_message(message.chat.id, 'Ты шо, чорт?!', reply_markup=keyboard1)
             else:
-                db_saver(message.chat.id, message.text)
-                bot.send_message(message.chat.id, 'Игра из Steam добавлена', reply_markup=keyboard1)
-        elif 'https://www.gog.com/game/' in message.text:
-            bot.send_message(message.chat.id, 'Игра из GOG добавлена', reply_markup=keyboard1)
-        elif 'https://www.epicgames.com/store/ru/product/' in message.text:
-            bot.send_message(message.chat.id, 'Игра из Epic добавлена', reply_markup=keyboard1)
-        else:
-            bot.send_message(message.chat.id, 'Ты шо, чорт?!')
+                bot.send_message(message.chat.id, 'Эта ссылка не активна', reply_markup=keyboard1)
+        except:
+            bot.send_message(message.chat.id, 'Какая-то странная ссылка', reply_markup=keyboard1)
     else:
-        bot.send_message(message.chat.id, 'Эта ссылка не активна')
+        bot.send_message(message.chat.id, 'Где ссылка, Лебовски?!', reply_markup=keyboard1)
 
 
 def url_list_generate(user_id):
