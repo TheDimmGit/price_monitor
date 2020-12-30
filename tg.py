@@ -1,6 +1,6 @@
 import telebot
 import requests
-from db import db_saver, db_extract, db_delete
+from db import db_saver, db_extract, db_delete, price_update
 bot = telebot.TeleBot('1407012334:AAHKokzZtFovlYJZkr5i8nHcdknkT0EzmW4')
 keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True, True)
 keyboard1.row('Добавить игру', 'Удалить игру', 'Показать список игр')
@@ -57,7 +57,7 @@ def process_url_step(message):
 def url_list_generate(user_id):
     game_str = ''
     for i, j in enumerate(db_extract(user_id)):
-        game_str += '\n' + str(i+1) + ". " + j
+        game_str += '\n' + str(i+1) + ". " + str(j)
     return game_str.strip('\n')
 
 
@@ -68,12 +68,21 @@ def saver(message):
         else:
             db_saver(message.chat.id, message.text)
             bot.send_message(message.chat.id, 'Игра из Steam добавлена', reply_markup=keyboard1)
+            msg = bot.send_message(message.chat.id, 'Теперь скажи мне желаемую цену')
+            bot.register_next_step_handler(msg, add_price)
+
     elif 'https://www.gog.com/game/' in message.text:
         bot.send_message(message.chat.id, 'Игра из GOG добавлена', reply_markup=keyboard1)
     elif 'https://www.epicgames.com/store/ru/product/' in message.text:
         bot.send_message(message.chat.id, 'Игра из Epic добавлена', reply_markup=keyboard1)
     else:
         bot.send_message(message.chat.id, 'Ты шо, чорт?!', reply_markup=keyboard1)
+
+
+def add_price(message):
+    user_id = message.chat.id
+    price_update(message.text, user_id)
+    bot.send_message(message.chat.id, 'Я сообщу, когда игра будет по указанной цене', reply_markup=keyboard1)
 
 
 bot.polling()
