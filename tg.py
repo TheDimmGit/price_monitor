@@ -57,7 +57,7 @@ def process_url_step(message):
 def url_list_generate(user_id):
     game_str = ''
     for i, j in enumerate(db_extract(user_id)):
-        game_str += '\n' + str(i+1) + ". " + str(j)
+        game_str += f'\n {i+1}. {j[0]} \n цена - {j[1]}'
     return game_str.strip('\n')
 
 
