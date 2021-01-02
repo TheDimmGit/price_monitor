@@ -22,8 +22,8 @@ def db_extract(user_id: str) -> list:
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
     try:
-        cursor.execute(f'SELECT * FROM user_info WHERE user_id={user_id}')
-        return [(i[2], i[3]) for i in cursor.fetchall()]
+        cursor.execute(f'SELECT message, price, actual_price FROM user_info WHERE user_id={user_id}')
+        return [(i[0], i[1], i[2]) for i in cursor.fetchall()]
     except sqlite3.OperationalError:
         return []
 
@@ -45,7 +45,7 @@ def price_update(message: str, user_id: str) -> None:
 
 
 def new_price(price, link):
-    conn = sqlite3.connect('../../user_info.db')
+    conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
     print(f'UPDATE user_info SET actual_price={price} WHERE message={link}')
     cursor.execute(f'UPDATE user_info SET actual_price={price} WHERE message="{link}"')
@@ -53,10 +53,17 @@ def new_price(price, link):
 
 
 def urls_extract():
-    conn = sqlite3.connect('../../user_info.db')
+    conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
     cursor.execute('SELECT message FROM user_info')
     urls = set([i[0] for i in cursor.fetchall()])
     return list(urls)
 
+
+def user_urls_extract(id):
+    conn = sqlite3.connect('user_info.db')
+    cursor = conn.cursor()
+    cursor.execute(f'SELECT message FROM user_info WHERE user_id={id}')
+    urls = set([i[0] for i in cursor.fetchall()])
+    return list(urls)
 

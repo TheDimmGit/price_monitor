@@ -1,6 +1,7 @@
 import telebot
 import requests
-from db import db_saver, db_extract, db_delete, price_update
+import os
+from db import db_saver, db_extract, db_delete, price_update, user_urls_extract
 bot = telebot.TeleBot('1407012334:AAHKokzZtFovlYJZkr5i8nHcdknkT0EzmW4')
 keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True, True)
 keyboard1.row('Добавить игру', 'Удалить игру', 'Показать список игр')
@@ -35,7 +36,7 @@ def send_text(message):
 
 def delete_game(message):
     user_id = message.chat.id
-    if message.text in db_extract(user_id):
+    if message.text in user_urls_extract(user_id):
         db_delete(message.text)
         bot.send_message(message.chat.id, 'Игра успешно удалена', reply_markup=keyboard1)
     else:
@@ -57,7 +58,7 @@ def process_url_step(message):
 def url_list_generate(user_id):
     game_str = ''
     for i, j in enumerate(db_extract(user_id)):
-        game_str += f'\n {i+1}. {j[0]} \n цена - {j[1]}'
+        game_str += f'\n {i+1}. {j[0]} \n цена - {j[1]} \n цена на сайте - {j[2]}'
     return game_str.strip('\n')
 
 
@@ -81,8 +82,15 @@ def saver(message):
 
 def add_price(message):
     user_id = message.chat.id
-    price_update(message.text, user_id)
-    bot.send_message(message.chat.id, 'Я сообщу, когда игра будет по указанной цене', reply_markup=keyboard1)
+    if message.text.isdigit():
+        text = 'Я сообщу, когда игра будет по указанной цене'
+        price_update(message.text, user_id)
+        bot.send_message(message.chat.id, text, reply_markup=keyboard1)
+    else:
+        text = 'Цена указана не корректно даваай еще раз'
+        msg = bot.send_message(message.chat.id, text, reply_markup=keyboard1)
+        bot.register_next_step_handler(msg, add_price)
 
 
+# Running bot
 bot.polling()
