@@ -1,7 +1,7 @@
 import telebot
 import requests
 import os
-from db import db_saver, db_extract, db_delete, price_update, user_urls_extract
+from db import db_saver, db_extract, db_delete, price_update, user_urls_extract, link_extract
 bot = telebot.TeleBot('1407012334:AAHKokzZtFovlYJZkr5i8nHcdknkT0EzmW4')
 keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True, True)
 keyboard1.row('Добавить игру', 'Удалить игру', 'Показать список игр')
@@ -58,24 +58,39 @@ def process_url_step(message):
 def url_list_generate(user_id):
     game_str = ''
     for i, j in enumerate(db_extract(user_id)):
-        game_str += f'\n {i+1}. {j[0]} \n цена - {j[1]} \n цена на сайте - {j[2]}'
+        game_str += f'\n {i+1}. {j[0]} \n Желаемая цена - {j[1]} \n Актуальная цена на сайте - {j[2]}'
     return game_str.strip('\n')
 
 
 def saver(message):
     if 'https://store.steampowered.com/app/' in message.text:
-        if message.text in db_extract(message.chat.id):
+        if message.text in link_extract(message.chat.id):
             bot.send_message(message.chat.id, 'Такая игра уже есть', reply_markup=keyboard1)
         else:
-            db_saver(message.chat.id, message.text)
+            print(link_extract(message.chat.id))
+            store = 'Steam'
+            db_saver(message.chat.id, message.text, store)
             bot.send_message(message.chat.id, 'Игра из Steam добавлена', reply_markup=keyboard1)
             msg = bot.send_message(message.chat.id, 'Теперь скажи мне желаемую цену')
             bot.register_next_step_handler(msg, add_price)
-
     elif 'https://www.gog.com/game/' in message.text:
-        bot.send_message(message.chat.id, 'Игра из GOG добавлена', reply_markup=keyboard1)
+        if message.text in link_extract(message.chat.id):
+            bot.send_message(message.chat.id, 'Такая игра уже есть', reply_markup=keyboard1)
+        else:
+            store = 'GOG'
+            db_saver(message.chat.id, message.text, store)
+            bot.send_message(message.chat.id, 'Игра из GOG добавлена', reply_markup=keyboard1)
+            msg = bot.send_message(message.chat.id, 'Теперь скажи мне желаемую цену')
+            bot.register_next_step_handler(msg, add_price)
     elif 'https://www.epicgames.com/store/ru/product/' in message.text:
-        bot.send_message(message.chat.id, 'Игра из Epic добавлена', reply_markup=keyboard1)
+        if message.text in link_extract(message.chat.id):
+            bot.send_message(message.chat.id, 'Такая игра уже есть', reply_markup=keyboard1)
+        else:
+            store = 'Epic'
+            db_saver(message.chat.id, message.text, store)
+            bot.send_message(message.chat.id, 'Игра из Epic добавлена', reply_markup=keyboard1)
+            msg = bot.send_message(message.chat.id, 'Теперь скажи мне желаемую цену')
+            bot.register_next_step_handler(msg, add_price)
     else:
         bot.send_message(message.chat.id, 'Ты шо, чорт?!', reply_markup=keyboard1)
 

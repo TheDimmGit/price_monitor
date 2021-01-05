@@ -1,7 +1,7 @@
 import sqlite3
 
 
-def db_saver(user_id: str, message: str) -> None:
+def db_saver(user_id: str, message: str, store: str) -> None:
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
 
@@ -10,11 +10,12 @@ def db_saver(user_id: str, message: str) -> None:
                     user_id integer,
                     message text,
                     price text NOT NULL DEFAULT 0,
-                    actual_price text NOT NULL DEFAULT 0)
+                    actual_price text NOT NULL DEFAULT 0,
+                    store text)
                     """)
     conn.commit()
-    cursor.execute(f"INSERT INTO user_info(user_id, message, price, actual_price) "
-                   f"VALUES (?,?,?,?)", (user_id, message, '0', '0'))
+    cursor.execute(f"INSERT INTO user_info(user_id, message, price, actual_price, store) "
+                   f"VALUES (?,?,?,?,?)", (user_id, message, '0', '0', store))
     conn.commit()
 
 
@@ -22,8 +23,18 @@ def db_extract(user_id: str) -> list:
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
     try:
-        cursor.execute(f'SELECT message, price, actual_price FROM user_info WHERE user_id={user_id}')
-        return [(i[0], i[1], i[2]) for i in cursor.fetchall()]
+        cursor.execute(f'SELECT message, price, actual_price, store FROM user_info WHERE user_id={user_id}')
+        return [(i[0], i[1], i[2], i[3]) for i in cursor.fetchall()]
+    except sqlite3.OperationalError:
+        return []
+
+
+def link_extract(user_id: str) -> list:
+    conn = sqlite3.connect('user_info.db')
+    cursor = conn.cursor()
+    try:
+        cursor.execute(f'SELECT message FROM user_info WHERE user_id={user_id}')
+        return [(i[0]) for i in cursor.fetchall()]
     except sqlite3.OperationalError:
         return []
 
