@@ -63,10 +63,10 @@ def new_price(price, link):
     conn.commit()
 
 
-def urls_extract():
+def urls_extract(store):
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
-    cursor.execute('SELECT message FROM user_info')
+    cursor.execute(f"SELECT message FROM user_info WHERE store='{store}'")
     urls = set([i[0] for i in cursor.fetchall()])
     return list(urls)
 

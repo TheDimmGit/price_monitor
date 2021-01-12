@@ -6,9 +6,10 @@ from scrapy.selector import Selector
 
 
 class PricerSpider(scrapy.Spider):
-    name = 'pricer'
-    allowed_domains = ['https://store.steampowered.com/']
-    start_urls = urls_extract()
+    name = 'steamspider'
+    allowed_domains = ['store.steampowered.com']
+    store = 'Steam'
+    start_urls = urls_extract(store)
 
     def parse(self, response):
         loader = ItemLoader(PriceCheckItem())

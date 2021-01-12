@@ -11,7 +11,8 @@ keyboard1.row('Добавить игру', 'Удалить игру', 'Пока�
 def start_message(message):
     username = message.chat.first_name
     bot.send_message(message.chat.id, f'Привет, {username}!\n'
-                                      f'Отправь мне ссылку на игру из Steam, GOG или Epic Store',
+                                      f'Я Капитан Прайсер и я слежу за ценами! \n'
+                                      f'Отправь мне ссылку на игру из Steam или GOG',
                      reply_markup=keyboard1)
 
 
@@ -30,8 +31,13 @@ def send_text(message):
     elif message.text.lower() == 'удалить игру':
         msg = bot.send_message(message.chat.id, 'Жду ссылку на игру для удаления')
         bot.register_next_step_handler(msg, delete_game)
+    elif message.text.lower() == 'привет':
+        bot.send_message(message.chat.id, 'Ну здравствуй')
+    elif message.text.lower() == 'как дела?':
+        bot.send_message(message.chat.id, 'У меня нет времени на разговоры, тыкай на мои кнопки!')
     else:
-        bot.send_message(message.chat.id, 'Ты шо, чорт?!', reply_markup=keyboard1)
+        bot.send_message(message.chat.id, 'Ты шо, чорт?!'
+                                          '\nПользуйся кнопками, я шо, зря их тебе показываю?!', reply_markup=keyboard1)
 
 
 def delete_game(message):
@@ -58,7 +64,8 @@ def process_url_step(message):
 def url_list_generate(user_id):
     game_str = ''
     for i, j in enumerate(db_extract(user_id)):
-        game_str += f'\n {i+1}. {j[0]} \n Желаемая цена - {j[1]} \n Актуальная цена на сайте - {j[2]}'
+        game_str += f'\n {i+1}. {j[0]} \n Желаемая цена - {j[1]} \n Актуальная цена на сайте - {j[2]}' \
+                    f'\n___________________________________'
     return game_str.strip('\n')
 
 
@@ -79,20 +86,11 @@ def saver(message):
         else:
             store = 'GOG'
             db_saver(message.chat.id, message.text, store)
-            bot.send_message(message.chat.id, 'Игра из GOG добавлена', reply_markup=keyboard1)
-            msg = bot.send_message(message.chat.id, 'Теперь скажи мне желаемую цену')
-            bot.register_next_step_handler(msg, add_price)
-    elif 'https://www.epicgames.com/store/ru/product/' in message.text:
-        if message.text in link_extract(message.chat.id):
-            bot.send_message(message.chat.id, 'Такая игра уже есть', reply_markup=keyboard1)
-        else:
-            store = 'Epic'
-            db_saver(message.chat.id, message.text, store)
-            bot.send_message(message.chat.id, 'Игра из Epic добавлена', reply_markup=keyboard1)
+            bot.send_message(message.chat.id, 'Игра из GOG добавлена \nЦены указаны в долларах', reply_markup=keyboard1)
             msg = bot.send_message(message.chat.id, 'Теперь скажи мне желаемую цену')
             bot.register_next_step_handler(msg, add_price)
     else:
-        bot.send_message(message.chat.id, 'Ты шо, чорт?!', reply_markup=keyboard1)
+        bot.send_message(message.chat.id, 'Я с такими ссылками не работаю, только Steam и GOG', reply_markup=keyboard1)
 
 
 def add_price(message):
