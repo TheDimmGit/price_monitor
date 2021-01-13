@@ -1,7 +1,6 @@
 import telebot
 import requests
-import os
-from db import db_saver, db_extract, db_delete, price_update, user_urls_extract, link_extract
+from db import db_saver, db_extract, db_delete, price_set, user_urls_extract, link_extract
 bot = telebot.TeleBot('1407012334:AAHKokzZtFovlYJZkr5i8nHcdknkT0EzmW4')
 keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True, True)
 keyboard1.row('Добавить игру', 'Удалить игру', 'Показать список игр')
@@ -64,7 +63,7 @@ def process_url_step(message):
 def url_list_generate(user_id):
     game_str = ''
     for i, j in enumerate(db_extract(user_id)):
-        game_str += f'\n {i+1}. {j[0]} \n Желаемая цена - {j[1]} \n Актуальная цена на сайте - {j[2]}' \
+        game_str += f'\n {i+1}. {j[0]} \n Желаемая цена - {j[1]} UAH \n Актуальная цена на сайте - {j[2]} UAH' \
                     f'\n___________________________________'
     return game_str.strip('\n')
 
@@ -74,7 +73,6 @@ def saver(message):
         if message.text in link_extract(message.chat.id):
             bot.send_message(message.chat.id, 'Такая игра уже есть', reply_markup=keyboard1)
         else:
-            print(link_extract(message.chat.id))
             store = 'Steam'
             db_saver(message.chat.id, message.text, store)
             bot.send_message(message.chat.id, 'Игра из Steam добавлена', reply_markup=keyboard1)
@@ -86,7 +84,7 @@ def saver(message):
         else:
             store = 'GOG'
             db_saver(message.chat.id, message.text, store)
-            bot.send_message(message.chat.id, 'Игра из GOG добавлена \nЦены указаны в долларах', reply_markup=keyboard1)
+            bot.send_message(message.chat.id, 'Игра из GOG добавлена', reply_markup=keyboard1)
             msg = bot.send_message(message.chat.id, 'Теперь скажи мне желаемую цену')
             bot.register_next_step_handler(msg, add_price)
     else:
@@ -97,7 +95,7 @@ def add_price(message):
     user_id = message.chat.id
     if message.text.isdigit():
         text = 'Я сообщу, когда игра будет по указанной цене'
-        price_update(message.text, user_id)
+        price_set(message.text, user_id)
         bot.send_message(message.chat.id, text, reply_markup=keyboard1)
     else:
         text = 'Цена указана не корректно даваай еще раз'
@@ -105,5 +103,4 @@ def add_price(message):
         bot.register_next_step_handler(msg, add_price)
 
 
-# Running bot
 bot.polling()

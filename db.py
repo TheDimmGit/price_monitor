@@ -1,4 +1,5 @@
 import sqlite3
+from reminder import reminder
 
 
 def db_saver(user_id: str, message: str, store: str) -> None:
@@ -47,7 +48,7 @@ def db_delete(message: str) -> None:
     conn.commit()
 
 
-def price_update(message: str, user_id: str) -> None:
+def price_set(message: str, user_id: str) -> None:
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
     cursor.execute(f'UPDATE user_info SET price={message} '
@@ -58,9 +59,22 @@ def price_update(message: str, user_id: str) -> None:
 def new_price(price, link):
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
+    cursor.execute(f"SELECT user_id, price, message FROM user_info WHERE message='{link}'")
+    id_and_desired_price = [(i[0], i[1], i[2]) for i in cursor.fetchall()]
+    desired_price = id_and_desired_price[0][1]
+    user_id = id_and_desired_price[0][0]
+    link = id_and_desired_price[0][2]
+    print(desired_price)
+    print(user_id)
+    print(link)
+    if int(desired_price) >= price:
+        reminder(user_id, link, price,desired_price)
+    # TODO проверить желаемый прайс и если он равен или выше actual_price, то вызывать функцию, которая дудет принимать
+    # TODO на воход айди пользователя, линк и актаульную цену
     print(f'UPDATE user_info SET actual_price={price} WHERE message={link}')
     cursor.execute(f'UPDATE user_info SET actual_price={price} WHERE message="{link}"')
     conn.commit()
+    return desired_price, user_id, link
 
 
 def urls_extract(store):
