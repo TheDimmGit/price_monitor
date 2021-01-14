@@ -1,7 +1,7 @@
 import scrapy
 import requests
 import json
-from db import urls_extract
+from db import store_urls_extract
 from price_check.items import PriceCheckItem
 from scrapy.loader import ItemLoader
 
@@ -10,9 +10,9 @@ class GogspiderSpider(scrapy.Spider):
     name = 'gogspider'
     allowed_domains = ['www.gog.com']
     store = 'GOG'
-    start_urls = urls_extract(store)
+    start_urls = store_urls_extract(store)
 
-    def parse(self, response):
+    def parse(self, response: scrapy.http.Request) -> None:
         r = requests.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/dollar_info?json').text
         usd = json.loads(r)[0]['rate']
         loader = ItemLoader(PriceCheckItem())

@@ -1,5 +1,5 @@
 import scrapy
-from db import urls_extract
+from db import store_urls_extract
 from price_check.items import PriceCheckItem
 from scrapy.loader import ItemLoader
 from scrapy.selector import Selector
@@ -9,9 +9,9 @@ class PricerSpider(scrapy.Spider):
     name = 'steamspider'
     allowed_domains = ['store.steampowered.com']
     store = 'Steam'
-    start_urls = urls_extract(store)
+    start_urls = store_urls_extract(store)
 
-    def parse(self, response):
+    def parse(self, response: scrapy.http.Request) -> None:
         loader = ItemLoader(PriceCheckItem())
         loader.add_value('url', response.url)
         price_1 = response.css('.game_purchase_action').get()
