@@ -19,5 +19,3 @@ def reminder(user_id: str, link: str, actual_price: str, desired_price: str) -> 
                               f'Цена - {actual_price}\n'
                               f'Указанная тобой цена - {desired_price}')
 
-
-bot.polling()

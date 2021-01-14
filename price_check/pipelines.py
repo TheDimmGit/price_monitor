@@ -10,6 +10,6 @@ from itemadapter import ItemAdapter
 
 class PriceCheckPipeline:
 
-    def process_item(self, item):
+    def process_item(self, item, spider):
         new_price(item['price'][0], item['url'][0])
         return item

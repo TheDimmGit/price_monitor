@@ -1,5 +1,5 @@
 import sqlite3
-from reminder import reminder
+from rem import reminder
 
 
 def db_saver(user_id: str, message: str, store: str) -> None:
