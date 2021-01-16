@@ -1,6 +1,8 @@
 import telebot
 import requests
 from db import db_saver, db_extract, db_delete, price_set, user_urls_extract
+from apscheduler.schedulers.blocking import BlockingScheduler
+import os
 bot = telebot.TeleBot('1407012334:AAHKokzZtFovlYJZkr5i8nHcdknkT0EzmW4')
 keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True, True)
 keyboard1.row('Добавить игру', 'Удалить игру', 'Показать список игр')
@@ -34,7 +36,6 @@ def send_text(message) -> None:
     Warn user if input is incorrect.
     """
     user_id = message.chat.id
-    print(user_id)
     if message.text.lower() == 'добавить игру':
         msg = bot.send_message(message.chat.id, 'Жду ссылку на игру')
         bot.register_next_step_handler(msg, process_url_step)
@@ -77,7 +78,6 @@ if not, warn user.
     """
     try:
         resp = requests.get(message.text).status_code
-        print(resp)
         if resp == 200:
             saver(message)
         else:
@@ -144,4 +144,22 @@ def add_price(message) -> None:
         bot.register_next_step_handler(msg, add_price)
 
 
-bot.polling()
+sched = BlockingScheduler()
+
+
+@sched.scheduled_job('interval', seconds=20)
+def timed_job():
+    os.system('scrapy crawl steamspider')
+
+
+@sched.scheduled_job('interval', seconds=30)
+def timed_job():
+    os.system('scrapy crawl gogspider')
+
+
+@sched.scheduled_job('interval', seconds=0)
+def timed_job():
+    bot.polling()
+
+
+sched.start()

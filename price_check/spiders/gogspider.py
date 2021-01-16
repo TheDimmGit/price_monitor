@@ -19,6 +19,4 @@ class GogspiderSpider(scrapy.Spider):
         loader.add_value('url', response.url)
         price = round((float(response.css('.product-actions-price span::text').getall()[1])*usd))
         loader.add_value('price', price)
-        print(price)
-        print(usd)
         yield loader.load_item()

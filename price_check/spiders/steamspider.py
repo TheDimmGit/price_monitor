@@ -20,6 +20,6 @@ class PricerSpider(scrapy.Spider):
         price = price_field.css('.game_purchase_price::text').get()
         if not price:
             price = price_field.css('.discount_final_price::text').get()
-        print(price)
-        loader.add_value('price', price.replace('₴', ''))
+        final_price = int(''.join([i for i in price if i.isdigit()]))
+        loader.add_value('price', final_price)
         yield loader.load_item()
