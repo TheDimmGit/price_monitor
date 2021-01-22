@@ -86,7 +86,7 @@ def price_set(message: str, user_id: str) -> None:
     """
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
-    cursor.execute(f'UPDATE user_info SET price={message}'
+    cursor.execute(f'UPDATE user_info SET price="{message}"'
                    f'WHERE user_id={user_id} AND id=(SELECT max(id) FROM user_info)')
     conn.commit()
 
@@ -102,12 +102,12 @@ def new_price(price: int, link: str) -> None:
     """
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
-    cursor.execute(f'SELECT user_id, price, message FROM user_info WHERE message="{link}"')
+    cursor.execute(f'SELECT user_id, price, message, actual_price FROM user_info WHERE message="{link}"')
     id_and_desired_price = [(i[0], i[1], i[2]) for i in cursor.fetchall()]
     desired_price = id_and_desired_price[0][1]
     user_id = id_and_desired_price[0][0]
     link = id_and_desired_price[0][2]
-    if int(desired_price) >= price:
+    if int(desired_price) > price:
         reminder(user_id, link, price, desired_price)
     cursor.execute(f'UPDATE user_info SET actual_price={price} WHERE message="{link}"')
     conn.commit()

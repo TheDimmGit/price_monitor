@@ -7,7 +7,7 @@ from scrapy.loader import ItemLoader
 
 
 class GogspiderSpider(scrapy.Spider):
-    name = 'gogspider'
+    name = 'gog'
     allowed_domains = ['www.gog.com']
     store = 'GOG'
     start_urls = store_urls_extract(store)
