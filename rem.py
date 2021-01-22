@@ -18,6 +18,7 @@ def reminder(user_id: str, link: str, actual_price: str, desired_price: str) -> 
         bot.send_message(user_id, f'Эта игра бесплатная!\n'
                                   f'Поторопись забрать её, пока не поздно!\n'
                                   f'(если только она не была всегда бесплатной, тогда не торопись)\n'
+                                  f'---------------------------------\n'
                                   f'{link}')
     else:
         bot.send_message(user_id, f'Цена ниже указанной!\n'

@@ -19,13 +19,14 @@ def db_saver(user_id: str, message: str, store: str) -> None:
                     (id INTEGER PRIMARY KEY,
                     user_id integer,
                     message text,
-                    price text NOT NULL DEFAULT 0,
-                    actual_price text NOT NULL DEFAULT 0,
-                    store text)
+                    price integer NOT NULL DEFAULT 0,
+                    actual_price integer NOT NULL DEFAULT 0,
+                    store text,
+                    flag text BOOLEAN DEFAULT 0)
                     """)
     conn.commit()
     cursor.execute(f"INSERT INTO user_info(user_id, message, price, actual_price, store) "
-                   f"VALUES (?,?,?,?,?)", (user_id, message, '0', '0', store))
+                   f"VALUES (?,?,?,?,?)", (user_id, message, 0, 0, store))
     conn.commit()
 
 
@@ -102,14 +103,15 @@ def new_price(price: int, link: str) -> None:
     """
     conn = sqlite3.connect('user_info.db')
     cursor = conn.cursor()
-    cursor.execute(f'SELECT user_id, price, message, actual_price FROM user_info WHERE message="{link}"')
-    id_and_desired_price = [(i[0], i[1], i[2]) for i in cursor.fetchall()]
-    desired_price = id_and_desired_price[0][1]
-    user_id = id_and_desired_price[0][0]
-    link = id_and_desired_price[0][2]
-    if int(desired_price) > price:
-        reminder(user_id, link, price, desired_price)
-    cursor.execute(f'UPDATE user_info SET actual_price={price} WHERE message="{link}"')
+    cursor.execute(f'SELECT user_id, price, flag FROM user_info WHERE message="{link}"')
+    for user_id, desired_price, flag in cursor.fetchall():
+        if int(desired_price) >= price and flag == '0':
+            cursor.execute(f'UPDATE user_info SET flag=1 WHERE message="{link}" AND user_id="{user_id}"')
+            reminder(user_id, link, price, desired_price)
+    if price == 0:
+        cursor.execute(f'UPDATE user_info SET actual_price=-1 WHERE message="{link}"')
+    else:
+        cursor.execute(f'UPDATE user_info SET actual_price={price} WHERE message="{link}"')
     conn.commit()
 
 

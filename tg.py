@@ -95,7 +95,12 @@ Concatenate game number, desired and actual prices strings.
     """
     game_str = ''
     for i, j in enumerate(db_extract(user_id)):
-        game_str += f'\n {i+1}. {j[0]} \n Желаемая цена - {j[1]} UAH \n Актуальная цена на сайте - {j[2]} UAH' \
+        p = j[2]
+        if j[2] == -1:
+            p = 'Игра бесплатная'
+        elif j[2] == 0:
+            p = 'Подождите, цена уточняется...'
+        game_str += f'\n {i+1}. {j[0]} \n Желаемая цена - {j[1]} \n Актуальная цена на сайте - {p}' \
                     f'\n___________________________________'
     return game_str.strip('\n')
 
@@ -149,12 +154,12 @@ sched = BlockingScheduler()
 
 @sched.scheduled_job('interval', seconds=20)
 def timed_job():
-    os.system('scrapy crawl steamspider')
+    os.system('scrapy crawl steam')
 
 
 @sched.scheduled_job('interval', seconds=30)
 def timed_job():
-    os.system('scrapy crawl gogspider')
+    os.system('scrapy crawl gog')
 
 
 @sched.scheduled_job('interval', seconds=0)
