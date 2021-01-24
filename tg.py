@@ -3,7 +3,8 @@ import requests
 from db import db_saver, db_extract, db_delete, price_set, user_urls_extract
 from apscheduler.schedulers.blocking import BlockingScheduler
 import os
-bot = telebot.TeleBot('1407012334:AAHKokzZtFovlYJZkr5i8nHcdknkT0EzmW4')
+token = os.environ.get('TG_BOT_TOKEN')
+bot = telebot.TeleBot(token)
 keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True, True)
 keyboard1.row('Добавить игру', 'Удалить игру', 'Показать список игр')
 
